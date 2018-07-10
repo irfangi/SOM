@@ -1,15 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <form class="" action="" method="post">
+      <table>
+        <tr>
+          <td>matrik data</td>
+          <td>
+            <input type="text" name="mdr" required>
+          </td>
+          <td>*</td>
+          <td>
+            <input type="text" name="mdc" required>
+          </td>
+        </tr>
+        <tr>
+          <td>matrik bobot</td>
+          <td>
+            <input type="text" name="mbr" required>
+          </td>
+          <td>*</td>
+          <td>
+            <input type="text" name="mbc" required>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><button type="submit" name="button_mat">submit</button></td>
+        </tr>
+        <tr>
+        </tr>
+      </table>
+    </form>
+    <form  action="" method="post">
+      <table>
+        <tr>
+          <td>jumlah iterasi</td><td><input type="text" name="iterasi" required></td><td>alpha</td><td><input type="text" name="alpha" required></td><td>perubahan alpha</td><td><input type="text" name="calpha" required></td>
+        </tr>
+        <tr>
+
+        </tr>
+        <?php
+        if (isset($_POST['button_mat'])) {
+          $mdr = $_POST['mdr'];
+          $mdc = $_POST['mdc'];
+          $mbr = $_POST['mbr'];
+          $mbc = $_POST['mbc'];
+          ?><tr>
+          <td>Matriks data</td>
+          </tr>
+          <?php
+          for ($i=0; $i < $mdr; $i++) {
+            ?><tr>
+            <?php
+              for ($c=0; $c < $mdc; $c++) {
+                ?>
+                  <td><input type="textbox" name="matrixD[<?php echo $i;?>][]" value="" required/> </td>
+                <?php
+              }
+             ?>
+          </tr>
+          <?php
+          }
+         ?>
+         <tr>
+           <td>Matriks bobot</td>
+         </tr>
+         <?php
+         for ($i=0; $i < $mbr; $i++) {
+           ?><tr>
+           <?php
+             for ($c=0; $c < $mbc; $c++) {
+               ?>
+                 <td><input type="textbox" name="matrixB[<?php echo $i;?>][]" value="" required/> </td>
+               <?php
+             }
+            ?>
+         </tr>
+         <?php
+         }
+         ?>
+         </table>
+         <button type="submit" name="button">submit</button>
+       <?php }  ?>
+    </form>
 <?php
-  $data = array(
-        array(1, 1),
-        array(4, 1),
-        array(1, 2),
-        array(3, 4),
-        array(5, 4));
-  $bobot = array(
-        array(2, 2, 2),
-        array(2, 3, 5));
-  $alpha = 0.5;
-  $iterasi=5;
+if (isset($_POST['button'])) {
+
+  $data = $_POST['matrixD'];
+  $bobot = $_POST['matrixB'];
+  $alpha = $_POST['alpha'];
+  $iterasi= $_POST['iterasi'];
   $batasColData = 0;
   $batasColBobot = 0;
 
@@ -83,10 +167,28 @@
           }
       }
       #mengubah nilai alpha
-      $alpha=$alpha*0.6;
+      $alpha=$alpha*$_POST['calpha'];
   }
-
-  echo var_dump ($bobot);
+  ?>
+  <table>
+    <tr>
+      <td>hasil : </td>
+    </tr>
+    <?php
+      foreach ($bobot as $bot) {
+        echo "<tr>";
+        foreach ($bot as $b) {
+          ?>
+            <td><?php echo $b; ?></td>
+          <?php
+        }
+        echo "</tr>";
+      }
+     ?>
+  </table>
+  <?php
   //echo count($data);
-
+}
  ?>
+</body>
+</html>
