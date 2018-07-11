@@ -6,26 +6,34 @@
   </head>
   <body>
     <form class="" action="" method="post">
-      <table>
+      <table
+      	<tr>
+      		<td></td>
+      		<td>Baris</td>
+      		<td></td>
+      		<td>Kolom</td>
+  		</tr>
         <tr>
-          <td>matrik data</td>
+          <td>Matrik data</td>
           <td>
             <input type="text" name="mdr" required>
           </td>
-          <td>*</td>
+          <td>X</td>
           <td>
             <input type="text" name="mdc" required>
           </td>
         </tr>
         <tr>
-          <td>matrik bobot</td>
+          <td>Matrik bobot</td>
           <td>
             <input type="text" name="mbr" required>
           </td>
-          <td>*</td>
+          <td>X</td>
           <td>
             <input type="text" name="mbc" required>
           </td>
+        </tr>
+        <tr>
         </tr>
         <tr>
           <td></td>
@@ -37,14 +45,18 @@
     </form>
     <form  action="" method="post">
       <table>
+        <?php
+        if (isset($_POST['button_mat'])) {?>
         <tr>
-          <td>jumlah iterasi</td><td><input type="text" name="iterasi" required></td><td>alpha</td><td><input type="text" name="alpha" required></td><td>perubahan alpha</td><td><input type="text" name="calpha" required></td>
+          <td>jumlah iterasi</td><td><input type="text" name="iterasi" required></td>
         </tr>
         <tr>
-
+          <td>alpha</td><td><input type="text" name="alpha" required></td>
+        </tr>
+        <tr>
+          <td>perubahan alpha</td><td><input type="text" name="calpha" required></td>
         </tr>
         <?php
-        if (isset($_POST['button_mat'])) {
           $mdr = $_POST['mdr'];
           $mdc = $_POST['mdc'];
           $mbr = $_POST['mbr'];
@@ -94,8 +106,10 @@ if (isset($_POST['button'])) {
   $bobot = $_POST['matrixB'];
   $alpha = $_POST['alpha'];
   $iterasi= $_POST['iterasi'];
+  $calpha = $_POST['calpha'];
   $batasColData = 0;
   $batasColBobot = 0;
+  $JejakClus=[];
 
   foreach ($data as $d) {
     $batasColData=count($d);
@@ -104,15 +118,21 @@ if (isset($_POST['button'])) {
   foreach ($bobot as $b) {
     $batasColBobot = count($b);
     break;
-  }
+  }?>
 
+  
+  <?php
   #ini iterasi yang ditentukan
   for ($per=0; $per<$iterasi; $per++)
   {
+      echo "<table border=1px><tr><td colspan=4><b>Iterasi ke-".($per+1)."</b><br/></td></tr>";
+      echo "<tr><td colspan=4>Alpha = ".$alpha."<br/></td></tr>";
       #iterasi array data
       for ($rowdata=0; $rowdata<count($data); $rowdata++)
       {
+        echo "<tr><td>Data ke-".($rowdata+1)." : </td>";
         $hasildat=0;
+        $indexClus=0;
         $ind=[];
         for ($colbobot=0; $colbobot<$batasColBobot; $colbobot++)
         {
@@ -125,10 +145,13 @@ if (isset($_POST['button'])) {
             $hasil=$hasil+(pow($bobot[$rowbobot][$colbobot]-$data[$rowdata][$coldata],2));
             $coldata++;
           }
+          echo "<td >D".($colbobot+1)." = ".$hasil."</td>";
           #memilih hasil jarak neuron terkecil
           if ($hasildat==0)
           {
             $hasildat=$hasil;
+            $indexClus=$colbobot+1;
+            $JejakClus[$rowdata]=$indexClus;
             for ($rowbobot=0; $rowbobot<count($bobot); $rowbobot++)
             {
               $bobotmenang[$rowbobot]=$bobot[$rowbobot][$colbobot];
@@ -142,6 +165,8 @@ if (isset($_POST['button'])) {
             if ($hasil<$hasildat)
             {
               $hasildat=$hasil;
+              $indexClus=$colbobot+1;
+              $JejakClus[$rowdata]=$indexClus;
               for ($rowbobot=0; $rowbobot<count($bobot); $rowbobot++)
               {
                 $bobotmenang[$rowbobot]=$bobot[$rowbobot][$colbobot];
@@ -151,28 +176,47 @@ if (isset($_POST['button'])) {
             }
           }
         }
+        echo "</tr>";
+        echo "<tr><td colspan=4>Nilai neuron terkecil (terpilih) = ".$hasildat."</td></tr>";
+        echo "<tr><td colspan=4>Index cluster bobot (terpilih) = ".$indexClus."</td></tr>";
+
           #menghitung bobot baru
           $rowdata=$rowdata;
           for ($coldata=0; $coldata<$batasColData; $coldata++)
           {
+          	#rumus bobot baru
             $datahitung[$coldata]=$data[$rowdata][$coldata];
             $hasilhitung1[$coldata]= $datahitung[$coldata]-$bobotmenang[$coldata];
             $hasilhitung2[$coldata]= $alpha * $hasilhitung1[$coldata];
           }
-          #mengubah bobot lama yang terpilih dengan bobot baru
+          
           for ($rowbobot=0; $rowbobot<count($bobot); $rowbobot++)
           {
             $hasilakhir[$rowbobot] = $bobotmenang[$rowbobot]+$hasilhitung2[$rowbobot];
+            #mengubah bobot lama yang terpilih dengan bobot baru
             $bobot[$ind1[$rowbobot]][$ind2[$rowbobot]]=$hasilakhir[$rowbobot];
           }
+          echo "<tr><td colspan=4>Bobot Baru :</td></tr>";
+          foreach ($bobot as $bot) {
+          echo "<tr><td></td>";
+          foreach ($bot as $b) {
+            ?>
+              <td><?php echo $b; ?></td>
+            <?php
+          }
+          echo "</tr>";
+          }
+
       }
+      echo "</table><br/>";
+      
       #mengubah nilai alpha
-      $alpha=$alpha*$_POST['calpha'];
+      $alpha=$alpha*$calpha;
   }
   ?>
-  <table>
+  <table border="1px">
     <tr>
-      <td>hasil : </td>
+      <td colspan="3">Bobot akhir : </td>
     </tr>
     <?php
       foreach ($bobot as $bot) {
@@ -185,9 +229,23 @@ if (isset($_POST['button'])) {
         echo "</tr>";
       }
      ?>
+  </table><br/>
+
+  <table border="1px">
+    <tr>
+      <td colspan="3">Index cluster yang diikuti : </td>
+    </tr>
+    <?php
+      foreach ($JejakClus as $jc) {
+        echo "<tr>";
+          ?>
+            <td><?php echo $jc; ?></td>
+          <?php
+        echo "</tr>";
+      }
+     ?>
   </table>
   <?php
-  //echo count($data);
 }
  ?>
 </body>
